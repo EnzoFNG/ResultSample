@@ -39,9 +39,9 @@ public static class DatabaseConfiguration
             {
                 var randomAge = DateTime.Now.Year - f.Person.DateOfBirth.Year;
 
-                var customer = Customer.Create(f.Internet.Email(), f.Person.FullName, randomAge);
+                var result = Customer.Create(f.Internet.Email(), f.Person.FullName, randomAge);
 
-                return customer.Response!;
+                return (Customer)result.Response!;
             });
 
         var customers = faker.Generate(100);

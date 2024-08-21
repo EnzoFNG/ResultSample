@@ -22,6 +22,6 @@ public sealed class DeleteCustomerCommandHandler(ResultSampleDbContext dbContext
         if (!success)
             return DatabaseErrors.EntityNotDeletedError(nameof(Customer));
 
-        return Result<string>.Success("The customer was deleted successfully!");
+        return Result.Success("The customer was deleted successfully!");
     }
 }

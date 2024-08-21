@@ -26,27 +26,19 @@ public sealed class EditCustomerCommandHandler(ResultSampleDbContext dbContext) 
 
         var result = existentCustomer.Edit(command.Email, command.Name, command.Age);
 
-        var response = Result.Success;
-        await result.Match(
-            onSuccess: async customer =>
+        var response = await result.Match<Customer>(
+            onSuccessAsync: async customer =>
             {
                 dbContext.Customers.Update(customer);
                 var success = await dbContext.SaveChangesAsync(cancellationToken) > 0;
 
                 if (!success)
-                {
-                    response = DatabaseErrors.EntityNotUpdatedError(nameof(Customer));
-                    return;
-                }
+                    return DatabaseErrors.EntityNotUpdatedError(nameof(Customer));
 
                 var commandResponse = new EditCustomerCommandResponse().Map(customer);
-                response = Result<EditCustomerCommandResponse>.Success(commandResponse);
+                return Result.Success(commandResponse);
             },
-            onFail: errors =>
-            {
-                response = Result.Failure(errors);
-                return Task.CompletedTask;
-            });
+            onFail: Result.Failure);
 
         return response;
     }

@@ -4,12 +4,20 @@ public class Result
 {
     protected readonly List<Error> _errors = [];
 
-    public static new Result Success(object response) => new(response);
+    public static Result Empty() => new();
+    public static Result Success(object response) => new(response);
     public static Result Failure(List<Error> errors) => new(errors);
 
     protected Result()
     {
         IsSuccess = true;
+        Response = null;
+    }
+
+    protected Result(object response)
+    {
+        IsSuccess = true;
+        Response = response;
     }
 
     protected Result(List<Error> errors)
@@ -24,22 +32,47 @@ public class Result
         }
 
         IsSuccess = false;
+        Response = null;
         _errors.AddRange(errors);
     }
 
     public virtual object? Response { get; }
-
+    public virtual bool IsSuccess { get; }
+    public virtual bool IsFailure => !IsSuccess;
     public virtual IReadOnlyCollection<Error>? Errors => _errors.AsReadOnly();
 
-    public virtual bool IsSuccess { get; }
-
-    public virtual bool IsFailure => !IsSuccess;
-
-    public virtual R Match<R>(Func<R> onSuccess, Func<List<Error>, R> onFailed)
+    public virtual Result Match<TObject>(Func<TObject, Result> onSuccess, Func<List<Error>, Result> onFail)
     {
         return IsSuccess
-            ? onSuccess()
-            : onFailed([.. Errors!]);
+            ? onSuccess((TObject)Response!)
+            : onFail([.. Errors]!);
+    }
+
+    public virtual async Task<Result> Match<TObject>(
+        Func<TObject, Task<Result>> onSuccessAsync, 
+        Func<List<Error>, Task<Result>> onFailAsync)
+    {
+        return IsSuccess
+            ? await onSuccessAsync((TObject)Response!)
+            : await onFailAsync([.. Errors]!);
+    }
+
+    public virtual async Task<Result> Match<TObject>(
+        Func<TObject, Task<Result>> onSuccessAsync,
+        Func<List<Error>, Result> onFail)
+    {
+        return IsSuccess
+            ? await onSuccessAsync((TObject)Response!)
+            : onFail([.. Errors]!);
+    }
+
+    public virtual async Task<Result> Match<TObject>(
+        Func<TObject, Result> onSuccess,
+        Func<List<Error>, Task<Result>> onFailAsync)
+    {
+        return IsSuccess
+            ? onSuccess((TObject)Response!)
+            : await onFailAsync([.. Errors]!);
     }
 
     public virtual Result IfFail(Action<List<Error>> func)
@@ -52,10 +85,10 @@ public class Result
         return this;
     }
 
-    public virtual Result IfSuccess(Action func)
+    public virtual Result IfSuccess(Action<object> func)
     {
         if (IsSuccess)
-            func();
+            func(Response!);
 
         return this;
     }
@@ -65,42 +98,4 @@ public class Result
 
     public static implicit operator Result(List<Error> errors)
         => new(errors);
-}
-
-public class Result<T> : Result
-{
-   
-
-    
-
-    public virtual R Match<R>(Func<T, R> onSuccess, Func<List<Error>, R> onFail)
-    {
-        return IsSuccess
-            ? onSuccess(Response!)
-            : onFail([.. Errors!]);
-    }
-
-    public virtual T IfFail(Func<List<Error>, T> func)
-    {
-        return IsFailure
-            ? func([.. Errors!])
-            : Response!;
-    }
-
-    public virtual Result<T> IfSuccess(Action<T> func)
-    {
-        if (IsSuccess)
-            func(Response!);
-
-        return this;
-    }
-
-    public static implicit operator Result<T>(T value)
-        => new(value);
-
-    public static implicit operator Result<T>(Error error)
-        => new([error]);
-
-    public static implicit operator Result<T>(List<Error> errors)
-       => new(errors);
 }

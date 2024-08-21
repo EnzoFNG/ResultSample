@@ -30,6 +30,6 @@ public sealed class GetAllCustomersQueryHandler(ResultSampleDbContext dbContext)
             Data = customers
         };
 
-        return Result<GetAllCustomersQueryResponse>.Success(response);
+        return Result.Success(response);
     }
 }

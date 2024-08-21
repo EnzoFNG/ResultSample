@@ -17,7 +17,7 @@ public sealed class CustomerController(IMediatorHandler mediator) : CustomContro
     {
         var result = await mediator.SendQueryAsync(query);
 
-        return CustomResponse<GetAllCustomersQueryResponse>(result);
+        return CustomResponse(result);
     }
 
     [HttpGet("{id}")]
@@ -30,7 +30,7 @@ public sealed class CustomerController(IMediatorHandler mediator) : CustomContro
 
         var result = await mediator.SendQueryAsync(query);
 
-        return CustomResponse<GetCustomerByIdQueryResponse>(result);
+        return CustomResponse(result);
     }
 
     [HttpPost]
@@ -38,7 +38,7 @@ public sealed class CustomerController(IMediatorHandler mediator) : CustomContro
     {
         var result = await mediator.SendCommandAsync(command);
 
-        return CreatedAtCustomResponse<CreateCustomerCommandResponse>(result);
+        return CreatedAtCustomResponse(result);
     }
 
     [HttpPut("{id}")]
@@ -47,7 +47,7 @@ public sealed class CustomerController(IMediatorHandler mediator) : CustomContro
         command.Id = id;
         var result = await mediator.SendCommandAsync(command);
 
-        return CustomResponse<EditCustomerCommandResponse>(result);
+        return CustomResponse(result);
     }
 
     [HttpDelete("{id}")]
@@ -59,6 +59,6 @@ public sealed class CustomerController(IMediatorHandler mediator) : CustomContro
         };
         var result = await mediator.SendCommandAsync(command);
 
-        return CustomResponse<string>(result);
+        return CustomResponse(result);
     }
 }

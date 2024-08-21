@@ -17,6 +17,6 @@ public sealed class GetCustomerByIdQueryHandler(ResultSampleDbContext dbContext)
 
         var response = new GetCustomerByIdQueryResponse().Map(customer);
 
-        return Result<GetCustomerByIdQueryResponse>.Success(response);
+        return Result.Success(response);
     }
 }

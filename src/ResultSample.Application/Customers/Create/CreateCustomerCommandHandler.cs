@@ -18,27 +18,19 @@ public sealed class CreateCustomerCommandHandler(ResultSampleDbContext dbContext
 
         var result = Customer.Create(command.Email, command.Name, command.Age);
 
-        var response = Result.Success;
-        await result.Match(
-            onSuccess: async customer =>
+        var response = await result.Match<Customer>(
+            onSuccessAsync: async customer =>
             {
                 await dbContext.Customers.AddAsync(customer, cancellationToken);
                 var success = await dbContext.SaveChangesAsync(cancellationToken) > 0;
 
                 if (!success)
-                {
-                    response = DatabaseErrors.EntityNotSavedError(nameof(Customer));
-                    return;
-                }
+                    return DatabaseErrors.EntityNotSavedError(nameof(Customer));
 
                 var commandResponse = new CreateCustomerCommandResponse().Map(customer);
-                response = Result<CreateCustomerCommandResponse>.Success(commandResponse);
+                return Result.Success(commandResponse);
             },
-            onFail: errors =>
-            {
-                response = Result.Failure(errors);
-                return Task.CompletedTask;
-            });
+            onFail: Result.Failure);
 
         return response;
     }

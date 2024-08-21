@@ -7,31 +7,23 @@ namespace ResultSample.Abstractions.Controllers;
 [ApiController]
 public class CustomController : ControllerBase
 {
-    protected IActionResult CreatedAtCustomResponse<T>(Result result)
+    protected IActionResult CreatedAtCustomResponse(Result result)
     {
-        if (result is Result<T> response)
-        {
-            return response.Match(response => StatusCode(201, response), ErrorResponse);
-        }
-
-        return result.Match(NoContent, ErrorResponse);
+        return ResultResponse(result, StatusCode(201, result.Response));
     }
 
     protected IActionResult CustomResponse(Result result)
-        => result.Match(NoContent, ErrorResponse);
-
-    protected IActionResult CustomResponse<T>(Result result)
     {
-        if (result is Result<T> response)
-        {
-            return response.Match(response => Ok(response), ErrorResponse);
-        }
-
-        return result.Match(NoContent, ErrorResponse);
+        return ResultResponse(result, Ok(result.Response));
     }
 
-    protected IActionResult CustomResponse<T>(Result<T> result)
-        => result.Match(response => Ok(response), ErrorResponse);
+    private IActionResult ResultResponse(Result result, IActionResult actionResult)
+    {
+        if (result.IsFailure)
+            return ErrorResponse([.. result.Errors!]);
+
+        return actionResult;
+    }
 
     protected IActionResult ErrorResponse(List<Error> errors)
     {

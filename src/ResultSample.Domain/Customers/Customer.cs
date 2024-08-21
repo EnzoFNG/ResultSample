@@ -20,17 +20,17 @@ public sealed class Customer : BaseEntity
     public string Name { get; private set; } = string.Empty;
     public int Age { get; private set; }
 
-    public static Result<Customer> Create(string email, string name, int age)
+    public static Result Create(string email, string name, int age)
     {
         var customer = new Customer(Guid.NewGuid(), email, name, age);
 
         if (!customer.IsValid)
             return customer.Errors.ToList();
 
-        return customer;
+        return Result.Success(customer);
     }
 
-    public Result<Customer> Edit(string? email = null, string? name = null, int? age = null)
+    public Result Edit(string? email = null, string? name = null, int? age = null)
     {
         Email = email ?? Email;
         Name = name ?? Name;
@@ -39,7 +39,7 @@ public sealed class Customer : BaseEntity
         if (!IsValid)
             return Errors.ToList();
 
-        return this;
+        return Result.Success(this);
     }
 
     protected override void Validate()
