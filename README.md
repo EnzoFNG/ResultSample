@@ -1,6 +1,6 @@
 # ResultSample
 
-Este projeto, **ResultSample**, é uma implementação de padrões e abstrações utilizando CQRS (Command Query Responsibility Segregation) e um pattern de `Result` que inclui uma lista de erros para validações. O objetivo é criar uma arquitetura limpa e eficiente, que facilite o desenvolvimento de aplicações robustas e escaláveis.
+Este projeto é uma implementação de padrões e abstrações utilizando CQRS (Command Query Responsibility Segregation) e um pattern de `Result` que inclui uma lista de erros para validações. O objetivo é criar uma arquitetura limpa e eficiente, que facilite o desenvolvimento de aplicações robustas e escaláveis.
 
 ## Funcionalidades
 
